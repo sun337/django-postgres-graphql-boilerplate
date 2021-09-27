@@ -20,7 +20,6 @@ class Query(graphene.ObjectType):
     return info.context.user
 
 
-
 class SignUp(graphene.Mutation):
   class Arguments:
     email = graphene.String(required=True)

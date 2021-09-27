@@ -28,6 +28,7 @@ ALLOWED_HOSTS = ['127.0.0.1']
 INSTALLED_APPS = [
   # Project Apps Listed First
   'users.apps.UserAppConfig',
+  'survey.apps.SurveyAppConfig',
 
   'django.contrib.admin',
   'django.contrib.auth',
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
   'graphene_django',
   'import_export',
   'simple_history',
+  'django_filters'
 ]
 
 GRAPHENE = {
@@ -54,7 +56,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 GRAPHQL_JWT = {
-  'JWT_VERIFY_EXPIRATION': False, # Turned off for easy graphql testing
+  'JWT_VERIFY_EXPIRATION': False,  # Turned off for easy graphql testing
   'JWT_EXPIRATION_DELTA': timedelta(minutes=5),
   'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=7),
 }
@@ -107,6 +109,7 @@ DATABASES = {
 
 # Tells django to use custom user model for authentication
 AUTH_USER_MODEL = 'users.User'
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
