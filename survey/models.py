@@ -40,8 +40,7 @@ class Question(models.Model):
 
 class Response(models.Model):
     """
-    A Response object is a collection of questions and answers with a
-    unique interview uuid.
+    A Response object is a collection of questions and answers.
     """
     created = models.DateTimeField(_("Creation date"), auto_now_add=True)
     updated = models.DateTimeField(_("Update date"), auto_now=True)

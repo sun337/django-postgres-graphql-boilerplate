@@ -1,0 +1,12 @@
+- model: survey.questionnaire
+  pk: 1
+  fields:
+    title: DLF1 promenade
+    owner: 1
+    url: ''
+- model: survey.questionnaire
+  pk: 2
+  fields:
+    title: DLF qq
+    owner: 1
+    url: ''

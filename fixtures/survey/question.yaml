@@ -1,0 +1,16 @@
+- model: survey.question
+  pk: 1
+  fields:
+    title: What is it?
+    questionnaire: 1
+    order: 0
+    type: short-text
+    choices: null
+- model: survey.question
+  pk: 2
+  fields:
+    title: How is it?
+    questionnaire: 1
+    order: 1
+    type: short-text
+    choices: null

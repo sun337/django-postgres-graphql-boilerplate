@@ -3,6 +3,7 @@ from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 
 from survey.models import Questionnaire, Question
+from users.models import User
 
 
 class Base64DecodeNode(graphene.relay.Node):
@@ -17,7 +18,6 @@ class Base64DecodeNode(graphene.relay.Node):
 class QuestionNode(DjangoObjectType):
     class Meta:
         model = Question
-        interfaces = (Base64DecodeNode,)
         filter_fields = ("id", "title", "type", "questionnaire")
 
 
@@ -28,14 +28,9 @@ class QuestionnaireNode(DjangoObjectType):
         filter_fields = ("id", "title", "owner", "url", "questions")
 
 
-class QuestionnaireConnection(graphene.relay.Connection):
-    class Meta:
-        node = QuestionnaireNode
-
-
 class Query(graphene.ObjectType):
     all_questionnaires = DjangoFilterConnectionField(QuestionnaireNode)
-    my_questionnaires = graphene.relay.ConnectionField(QuestionnaireConnection)
+    my_questionnaires = graphene.List(QuestionnaireNode)
 
     def resolve_my_questionnaires(root, info, **kwargs):
         queryset = Questionnaire.objects.all()
@@ -56,7 +51,24 @@ class UpdateQuestion(graphene.Mutation):
         question = Question.objects.get(id=id)
         question.title = text
         question.save()
-        return UpdateQuestion(question=question)
+        return UpdateQuestion(
+            question=question
+        )
+
+
+class DeleteQuestion(graphene.Mutation):
+    ok = graphene.Boolean()
+
+    class Arguments:
+        id = graphene.ID()
+
+    @classmethod
+    def mutate(cls, root, info, **kwargs):
+        obj = Question.objects.get(pk=kwargs["id"])
+        if obj.questionnaire.owner != info.context.user:
+            return cls(ok=False)
+        obj.delete()
+        return cls(ok=True)
 
 
 class CreateQuestion(graphene.Mutation):
@@ -69,17 +81,17 @@ class CreateQuestion(graphene.Mutation):
 
     question = graphene.Field(QuestionNode)
 
-    # Where you really do all the mutation 🦁 🐉
-    def mutate(self, info, title, type, questionnaire_id):
+    @classmethod
+    def mutate(cls, info, title, type, order, choices, questionnaire_id):
         questionnaire = Questionnaire.objects.get(id=questionnaire_id)
-        question = Question.objects.create(
+        question = Question(
             title=title,
             type=type,
+            order=order,
+            choices=choices,
             questionnaire=questionnaire
         )
-
         question.save()
-        # return an instance of the Mutation 🤷‍♀️
         return CreateQuestion(
             question=question
         )
@@ -106,11 +118,9 @@ class CreateQuestionnaire(graphene.Mutation):
 
 class UpdateQuestionnaire(graphene.Mutation):
     class Arguments:
-        # The input arguments for this mutation
         title = graphene.String(required=True)
         id = graphene.ID()
 
-    # The class attributes define the response of the mutation
     questionnaire = graphene.Field(QuestionnaireNode)
 
     @classmethod
@@ -118,13 +128,15 @@ class UpdateQuestionnaire(graphene.Mutation):
         questionnaire = Questionnaire.objects.get(id=id)
         questionnaire.title = title
         questionnaire.save()
-        # Notice we return an instance of this mutation
-        return UpdateQuestionnaire(questionnaire=questionnaire)
+        return UpdateQuestionnaire(
+            questionnaire=questionnaire
+        )
 
 
 class Mutation(graphene.ObjectType):
     create_question = CreateQuestion.Field()
     update_question = UpdateQuestion.Field()
+    delete_question = DeleteQuestion.Field()
 
     create_questionnaire = CreateQuestionnaire.Field()
     update_questionnaire = UpdateQuestionnaire.Field()
