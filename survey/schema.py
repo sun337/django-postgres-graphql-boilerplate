@@ -2,6 +2,7 @@ import graphene
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 
+from django.conf import settings
 from survey.models import Questionnaire, Question
 from users.models import User
 
@@ -41,15 +42,21 @@ class Query(graphene.ObjectType):
 
 class UpdateQuestion(graphene.Mutation):
     class Arguments:
-        title = graphene.String(required=True)
+        title = graphene.String()
+        type = graphene.String()
+        order = graphene.Int()
+        choices = graphene.String()
         id = graphene.ID()
 
     question = graphene.Field(QuestionNode)
 
     @classmethod
-    def mutate(cls, root, info, text, id):
+    def mutate(cls, root, info, title, type, order, choices, id):
         question = Question.objects.get(id=id)
-        question.title = text
+        question.title = title
+        question.type = type
+        question.order = order
+        question.choices = choices
         question.save()
         return UpdateQuestion(
             question=question
@@ -119,14 +126,18 @@ class CreateQuestionnaire(graphene.Mutation):
 class UpdateQuestionnaire(graphene.Mutation):
     class Arguments:
         title = graphene.String(required=True)
+        is_published = graphene.Boolean()
         id = graphene.ID()
 
     questionnaire = graphene.Field(QuestionnaireNode)
 
     @classmethod
-    def mutate(cls, root, info, title, id):
+    def mutate(cls, root, info, title, is_published, id):
         questionnaire = Questionnaire.objects.get(id=id)
         questionnaire.title = title
+        questionnaire.is_published = is_published
+        if is_published:
+            questionnaire.url = settings.GUI_URL+str(questionnaire.id)
         questionnaire.save()
         return UpdateQuestionnaire(
             questionnaire=questionnaire

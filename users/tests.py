@@ -23,9 +23,10 @@ class UserGraphQLTest(TestCase):
       }
     }
     ''')
+
     assert executed['data']['signup']['user'] == {
       'isActive': True,
-      'email': 'testuser1@test.com',
+      'email': 'testuser@test.com',
       'isSuperuser': False,
       'isStaff': False
     }

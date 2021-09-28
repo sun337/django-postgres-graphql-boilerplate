@@ -30,12 +30,11 @@ class QuestionnaireCreateTestCase(GraphQLTestCase):
             }
             ''',
             op_name='createQuestionnaire',
-            # input_data={'title': 'DLF qq'},
             context_value=self.context
         )
 
         assert response.get('data').get('createQuestionnaire') == {
-            'myQuestionnaires': []
+            'questionnaire':  {'id': 'QuestionnaireNode-1', 'title': 'DLF title'}
         }
 
     def test_my_questionnaires_query(self):
