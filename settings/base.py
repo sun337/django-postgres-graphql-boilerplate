@@ -146,3 +146,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+GUI_URL = os.environ.get('GUI_URL', 'https://client.exampleproject.com/survey/')
